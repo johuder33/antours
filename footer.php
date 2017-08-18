@@ -3,7 +3,7 @@ $logo_url = loadAssetFromResourceDirectory("images", "antours-logo.png");
 ?>
 
         <footer class="row">
-            <div class="footer-container">
+            <div class="footer-container" id="contact">
                 <div class="row footer-wrapper">
                     <div class="col-xs-5">
                         <figure class="footer-logo">

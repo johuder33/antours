@@ -54,5 +54,38 @@ jQuery(document).ready(function(){
             }
             target.removeClass("open");
         });
+
+        //handle scrollable links
+        $('.menu-link').on('click', function(e){
+            var self = $(this);
+            var isScrollable = self.data('scrollable');
+            if (isScrollable) {
+                e.preventDefault();
+                var target = self.attr('href');
+                target = $(target);
+
+                if (target.length > 0) {
+                    var offset = target.offset();
+                    var screen = $('html, body');
+                    screen.stop().animate({scrollTop: offset.top}, 500, 'swing');
+                }
+            }
+        });
+
+        // handle active links
+        var pathname = document.location.pathname;
+        var links = $('.menu-link');
+        
+        links.each(function(index, element){
+            var self = $(element);
+            var href = self.data('href');
+
+            if (href) {
+                if (pathname.indexOf(href) > -1) {
+                    self.addClass('active');
+                    return;
+                }
+            }
+        });
     })(jQuery);
 });

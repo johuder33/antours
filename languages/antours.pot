@@ -1,0 +1,53 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-08-16 01:40+0000\n"
+"PO-Revision-Date: 2017-08-16 23:45+0000\n"
+"Last-Translator: Juorder Gonzalez <johudergb@hotmail.com>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Name of the theme
+msgid "Antours Theme"
+msgstr ""
+
+msgid "Service menu label"
+msgstr ""
+
+msgid "Service menu singular label"
+msgstr ""
+
+msgid "Service menu add new label"
+msgstr ""
+
+msgid "Service menu not found label"
+msgstr ""
+
+msgid "Service menu all items label"
+msgstr ""
+
+msgid "Service menu add new item label"
+msgstr ""
+
+msgid "Package menu label"
+msgstr ""
+
+msgid "Package menu singular label"
+msgstr ""
+
+msgid "Package menu add new label"
+msgstr ""
+
+msgid "Package menu not found label"
+msgstr ""
+
+msgid "Package menu all items label"
+msgstr ""
+
+msgid "Package menu add new item label"
+msgstr ""
