@@ -45,10 +45,11 @@
 
     var _attemps = 0;
     var _timer = setInterval(function(){
-        var field = $('#antours_trip_price_package');
+        var id = '#antours_trip_price_package';
+        var field = $(id);
 
         if (field.length > 0 || (_attemps > 10)) {
-            new AutoNumeric('#antours_trip_price_package', { currencySymbol : '$' });
+            new AutoNumeric(id, { currencySymbol : '$' });
             return clearInterval(_timer);
         }
 

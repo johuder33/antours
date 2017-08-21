@@ -1,6 +1,6 @@
 <?php
 
-global $languages;
+global $languages, $about, $services, $packages;
 $logo_url = loadAssetFromResourceDirectory("images", "antours-logo.png");
 $site_url = get_site_url();
 
@@ -16,7 +16,7 @@ $site_url = get_site_url();
         <div class="menu-column-middle">
             <ul class="list-unstyled antours-menu-list">
                 <li class="text-uppercase">
-                    <a href="<?php echo bloginfo('url') ?>/<?php echo $aboutUsURL; ?>" class="menu-link" data-href="about">
+                    <a href="<?php echo bloginfo('url') ?>/<?php echo $about; ?>" class="menu-link" data-href="about">
                         Nosotros
                     </a>
                 </li>
@@ -26,7 +26,7 @@ $site_url = get_site_url();
                     </a>
                 </li>
                 <li class="text-uppercase">
-                    <a href="<?php echo bloginfo('url') ?>/<?php echo $servicesUsURL; ?>" class="menu-link" data-href="service">
+                    <a href="<?php echo bloginfo('url') ?>/<?php echo $services; ?>" class="menu-link" data-href="service">
                         Servicios
                     </a>
                 </li>
@@ -38,20 +38,9 @@ $site_url = get_site_url();
             </ul>
         </div>
         <div class="menu-column-boundary">
-            <?php pll_the_languages(); ?>
-            <?php //var_dump(pll_the_languages(array('dropdown' => 1))); ?>
-            <?php
-            /*    $languages = pll_the_languages(array('raw' => 1, 'show_names' => 1));
-                foreach($languages as $lang => $args) {
-                    var_dump(pll_get_term_translations(44));
-                    //var_dump($args);
-                    ?>
-                    <a href="<?php echo $args['url'] ?>">
-                        <?php echo $args['name']; ?>
-                    </a>
-                    <?php
-                }
-            */?>
+            <ul class="list-unstyled list-inline">
+                <?php pll_the_languages(array('hide_current' => 1, 'show_flags' => 1)); ?>
+            </ul>
         </div>
     </nav>
 </header>

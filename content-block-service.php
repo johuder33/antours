@@ -1,6 +1,6 @@
 <?php
-
-$attachment = get_the_post_thumbnail_url($post);
+global $serviceImageLabel;
+$attachment = get_the_post_thumbnail_url($post, $serviceImageLabel);
 $content = get_the_content();
 
 ?>

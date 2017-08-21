@@ -1,17 +1,29 @@
 <?php
 session_start();
 // import custom Error classes
-include_once(get_template_directory() . "/AntoursError.php");
 include_once(get_template_directory() . "/system/fields.php");
-
-$languages;
+include_once(get_template_directory() . "/system/AntoursBanners.php");
 
 $prefix = "antours";
-
 $domain = $prefix;
+
+$commentLimit = get_option( 'posts_per_page' );
+$nonceToLoadComments = 'load-comment-per-post';
+$loadingText = __('Loading comment text', $domain);
+$loaderText = __('Loader comment text', $domain);
+
+$actionNameContactForm = 'send_notification_contact_form';
+$nonceToContactForm = 'nonce-contact-form-antours';
+$loadingContactForm = __('Loading contact button text', $domain);
+$loaderContactForm = __('Loader contact button text', $domain);
+
+$nonceToServices = 'nonce-services-per-taxonomy';
+$serviceActionName = "load_services_taxo_posts";
 
 $services = "at_servicios";
 $packages = "at_paquetes";
+$about = "at_nosotros";
+$banners = "at_banners";
 
 $serviceImageLabel = "antours_service_background";
 $packageFeaturedImage = "package_featured_image";
@@ -42,26 +54,46 @@ add_theme_support( 'post-thumbnails' );
 */
 
 function load_JS_ResourcesAtFrondEnd() {
+    global $post, $packages, $nonceToLoadComments, $loadingText, $loaderText, $nonceToContactForm, $loadingContactForm, $loaderContactForm, $actionNameContactForm;
+    global $nonceToServices, $serviceActionName;
+
     wp_enqueue_script("bootstrap-antours-js", "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js", array( 'jquery' ), null, false);
     wp_enqueue_script("jquery-datepicker", loadAssetFromResourceDirectory("scripts/datepicker", "datepicker.min.js"));
     wp_enqueue_script("jquery-timepicker", "https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.js");
     wp_enqueue_script("antours-scripts", loadAssetFromResourceDirectory("scripts", "antours.js"), array(), 1.0);
+    wp_enqueue_script("google-maps", "https://maps.google.com/maps/api/js?key=AIzaSyA9otsw6Uersa3aTB9IMV0gxyeyytOHBtw");
+    wp_enqueue_script("map-frontend", loadAssetFromResourceDirectory("scripts", "map.js"), array(), 1.0);
+
+    // set this to make available contact form to send emails
+    wp_localize_script( 'antours-scripts', 'contact_form_config', array(
+        'ajax_url' => admin_url( 'admin-ajax.php' ),
+        'nonce' => wp_create_nonce($nonceToContactForm),
+        'contact_progress_text' => $loadingContactForm,
+        'contact_text' => $loaderContactForm,
+        'actionName' => $actionNameContactForm
+    ));
+
+    wp_localize_script( 'antours-scripts', 'services_config', array(
+        'ajax_url' => admin_url( 'admin-ajax.php' ),
+        'nonce' => wp_create_nonce($nonceToServices),
+        'actionName' => $serviceActionName
+    ));
+
+    if ($post->post_type === $packages) {
+        wp_enqueue_script('lightbox-js');
+
+        // expose ajax_url only in packages post type
+        wp_localize_script( 'antours-scripts', 'comment_config', array(
+            'ajax_url' => admin_url( 'admin-ajax.php' ),
+            'post_id' => $post->ID,
+            'nonce' => wp_create_nonce($nonceToLoadComments),
+            'loadingCommentText' => $loadingText,
+            'loaderCommentText' => $loaderText
+        ));
+    }
 }
 
 add_action("wp_enqueue_scripts", "load_JS_ResourcesAtFrondEnd");
-
-function register_handle_map($google_map_url) {
-    global $post, $packages;
-
-    if ($post->post_type === $packages) {
-        wp_enqueue_script("manager-map-RW", loadAssetFromResourceDirectory("scripts", "manager-map.js"), array(), 1.0, true);
-        wp_enqueue_script("numeric-antours-pricer", loadAssetFromResourceDirectory("scripts", "autonumeric-price.js"), array(), 1.0, true);
-    }
-
-    return $google_map_url;
-}
-
-add_filter('rwmb_google_maps_url', 'register_handle_map');
 
 /*
 * load_CSS_ResourcesAtFrondEnd function will load
@@ -73,11 +105,18 @@ add_filter('rwmb_google_maps_url', 'register_handle_map');
 */
 
 function load_CSS_ResourcesAtFrondEnd() {
+    global $post, $packages;
+
     wp_enqueue_style("bootstrap-antours", "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css", array(), null, false);
     wp_enqueue_style("jquery-datepicker", loadAssetFromResourceDirectory("scripts/datepicker", "datepicker.min.css"));
     wp_enqueue_style("jquery-timepicker", "https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.css");
     wp_enqueue_style("open-sans-font", "https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800");
     wp_enqueue_style("antours-style", get_stylesheet_uri(), array(), 1.2);
+    wp_enqueue_style('font-awesome');
+
+    if ($post->post_type === $packages) {
+        wp_enqueue_style('lightbox-css');
+    }
 }
 
 add_action("wp_enqueue_scripts", "load_CSS_ResourcesAtFrondEnd");
@@ -101,7 +140,26 @@ function loadAssetFromResourceDirectory($context, $filename) {
     return $base_url;
 }
 
-add_action('init', registerPostTypes, 1);
+add_action('admin_enqueue_scripts', 'load_scripts_for_admins');
+
+function load_scripts_for_admins($page) {
+    global $post, $packages;
+    // check if is inside new post or edit post
+    if (in_array($page, array('post.php', 'post-new.php'))) {
+        if ($post->post_type === $packages) {
+            wp_enqueue_script("manager-map-admin");
+        }
+    }
+}
+
+add_action('admin_init', 'register_admin_scripts');
+
+function register_admin_scripts() {
+    wp_register_script('numeric-js', loadAssetFromResourceDirectory("scripts", "autonumeric-price.js"));
+    wp_register_script('manager-map-admin', loadAssetFromResourceDirectory("scripts", "manager-map.js"), array('numeric-js'));
+}
+
+add_action('init', 'registerPostTypes');
 
 function registerNewSizes() {
     global $customImageSizes;
@@ -160,15 +218,56 @@ function registerPostTypes() {
         'taxonomies' => array('antours-category'),
     );
 
+    $aboutPostTypeArgs = array(
+        'labels' => array(
+            'name' => __('About menu label', $domain),
+            'singular_name' => __('About menu singular label', $domain),
+            'add_new' => __('About menu add new label', $domain),
+            'not_found' => __('About menu not found label', $domain),
+            'all_items' => __('About menu all items label', $domain),
+            'add_new_item' => __('About menu add new item label', $domain),
+            'featured_image' => __('About featured image', $domain),
+            'set_featured_image' => __('About set featured image', $domain),
+        ),
+        'public' => true,
+        'has_archive' => true,
+        'show_ui' => true,
+        'supports' => array(
+            'title',
+            'editor',
+            'thumbnail'
+        )
+    );
+
+    $bannersPostTypeArgs = array(
+        'labels' => array(
+            'name' => __('Banner menu label', $domain),
+            'singular_name' => __('Banner menu singular label', $domain),
+            'add_new' => __('Banner menu add new label', $domain),
+            'not_found' => __('Banner menu not found label', $domain),
+            'all_items' => __('Banner menu all items label', $domain),
+            'add_new_item' => __('Banner menu add new item label', $domain),
+            'featured_image' => __('Banner featured image', $domain),
+            'set_featured_image' => __('Banner set featured image', $domain),
+        ),
+        'public' => true,
+        'has_archive' => false,
+        'show_ui' => true,
+        'supports' => array(
+            'title'
+        )
+    );
+
     // Create custom size
     registerNewSizes();
 
     // register post type roots
-    global $services;
-    global $packages;
+    global $services, $packages, $about, $banners;
 
     register_post_type($services, $servicePostTypeArgs);
     register_post_type($packages, $packagePostTypeArgs);
+    register_post_type($about, $aboutPostTypeArgs);
+    register_post_type($banners, $bannersPostTypeArgs);
 
     // register taxonomy category
     register_taxonomy(
@@ -180,12 +279,43 @@ function registerPostTypes() {
             'hierarchical' => true,
         )
     );
+
+    // register lightbox to be accesible for package single page
+    wp_register_script('lightbox-js', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.1.20/jquery.fancybox.min.js');
+    wp_register_style('lightbox-css', 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.1.20/jquery.fancybox.min.css');
+    // register lightbox to be accesible for package single page
+
+    // register fontwesome only to be used in post type packages
+    wp_register_style('font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+}
+
+add_action( 'admin_menu', 'myprefix_adjust_the_wp_menu', 999 );
+function myprefix_adjust_the_wp_menu() {
+    global $about;
+
+  //Get number of posts authored by user
+  $args = array('post_type' => $about, 'fields'>'ids');
+  $count = count(get_posts($args));
+
+  global $submenu;
+  unset($submenu['edit.php?post_type='.$about][10]);
+
+    // Hide link on listing page
+    /**/
+
+  //Conditionally remove link:
+  if($count > 0) {
+        $page = remove_submenu_page( 'edit.php?post_type='. $about, 'post-new.php?post_type='. $about );
+        if (isset($_GET['post_type']) && $_GET['post_type'] == $about) {
+            echo '<style type="text/css"> .page-title-action { display: none!important; } </style>';
+        }
+  }
 }
 
 add_filter('rwmb_meta_boxes', 'RegisterMetaboxesInPackage');
 
 function RegisterMetaboxesInPackage($meta_boxes) {
-    global $prefix, $domain, $services, $packages;
+    global $prefix, $domain, $services, $packages, $banners;
     $pre = $prefix."_";
 
     $meta_boxes[] = array(
@@ -289,6 +419,31 @@ function RegisterMetaboxesInPackage($meta_boxes) {
 		),
 	);
 
+    $meta_boxes[] = array(
+        'id' => $pre . 'banners',
+		'title'  => __( 'Banner per section', $domain ),
+        'post_types' => array( $banners ),
+        'context'    => 'normal',
+        'priority'   => 'high',
+		'fields' => array(
+			array(
+				'id'   => $pre . 'banners_home',
+				'name' => __( 'Banners home', $domain ),
+				'type' => 'image_advanced'
+			),
+            array(
+				'id'   => $pre . 'banners_services',
+				'name' => __( 'Banners services', $domain ),
+				'type' => 'image_advanced'
+			),
+            array(
+				'id'   => $pre . 'banners_about',
+				'name' => __( 'Banners about', $domain ),
+				'type' => 'image_advanced'
+			)
+		),
+	);
+
     return $meta_boxes;
 }
 
@@ -345,16 +500,6 @@ function wpse_edit_text($content) {
 
 add_action( 'admin_init', 'alter_footer_admin' );
 
-if (class_exists('WPPaginate')) {
-	$wp_paginate = new WPPaginate();
-}
-
-function wp_paginates($args = false) {
-	global $wp_paginate;
-	$wp_paginate->type = 'package';
-	return $wp_paginate->paginate($args);
-}
-
 add_filter( 'wp_handle_upload_prefilter', 'checker_image_size' );
 
 function checker_image_size( $file ) {
@@ -376,23 +521,179 @@ function checker_image_size( $file ) {
     return $file;
 }
 
-add_filter( 'pll_the_languages', 'my_dropdown', 10, 2 );
- 
-function my_dropdown( $output, $args ) {
-    if ( ! $args['dropdown'] ) {
-        return $output;
+add_action( 'wp_ajax_nopriv_' . $serviceActionName, 'load_service_posts' );
+add_action( 'wp_ajax_' . $serviceActionName, 'load_service_posts' );
+
+function load_service_posts() {
+    global $packages, $wp_query;
+    $page = $_POST['page'];
+    $taxId = $_POST['taxID'];
+    $postsPerPage = get_option('posts_per_page');
+
+    $args = array('tax_query' => array( 
+            array( 
+                'taxonomy' => 'antours-category',
+                'field' => 'id', 
+                'terms' => array($taxId) 
+            )),
+            'post_type' =>  $packages,
+            'post_status' => 'publish',
+            'paged' => $page
+            );
+
+    $posts = query_posts($args);
+
+    $total = $wp_query->found_posts;
+
+    $haveMore = ($page + 1) < ceil($total / $postsPerPage) ? true : false;
+
+    if (have_posts()) {
+        $result = array();
+
+        while(have_posts()) {
+            the_post();
+            $grid = load_template_part($post, 'content-template-package.php');
+            array_push($result, $grid);
+        }
     }
-    foreach ( array( 'en_US', 'fr_FR', 'de_DE' ) as $lang ) {
-        $file = POLYLANG_DIR . ”/flags/$lang.png”;
-        $value = reset( explode( '_', get_locale() ) );
-        $output = str_replace( "value='" . $value . "'", "value='" . $lang . "' title='" . $file . "'", $output );
-    }
-    return $output;
+
+    $response = array(
+        'packages' => $result,
+        'more' => $haveMore
+    );
+
+    wp_send_json_success($response);
+
+    die();
 }
 
-/*add_filter( 'pll_the_languages_args', 'my_language_switcher_args' );
- 
-function my_language_switcher_args( $args ) {
-    $args['display_names_as'] = 'slug';
-    return $args;
-}*/
+add_action( 'wp_ajax_nopriv_' . $actionNameContactForm, 'send_notification_contact_form' );
+add_action( 'wp_ajax_' . $actionNameContactForm, 'send_notification_contact_form' );
+
+function send_notification_contact_form() {
+    global $domain, $nonceToContactForm;
+    $nonce = $_POST['nonce'];
+    $name = $_POST['name'];
+    $lastname = $_POST['lastname'];
+    $subject = $_POST['subject'];
+    $message = $_POST['message'];
+    $isCorrectNonce = wp_verify_nonce($nonce, $nonceToContactForm);
+
+    if ($isCorrectNonce) {
+        $targetEmail = "johudergb@gmail.com";//get_option("antours_email_receivers");
+
+        if (isset($name) && isset($lastname) && isset($message) && isset($targetEmail)) {
+            $to = array($targetEmail, "loor.jehish@gmail.com");
+            $content = array("namespace" => "contact", "message" => $message, "name" => $name, "lastname" => $lastname, "subject" => $subject);
+
+            $status = wp_mail($to, $subject, $content);
+
+            $response = array(
+                "sent" => $status
+            );
+
+            if ($status) {
+                wp_send_json_success($response);
+            } else {
+                wp_send_json_error($response);
+            }
+        }
+    }
+
+    $error = array(
+        'error' => __("Not sending email error", $domain)
+    );
+
+    wp_send_json_error($error);
+
+    die;
+}
+
+add_filter( 'wp_mail', 'alter_email_contact' );
+
+function alter_email_contact( $args ) {
+    $currentMessage = $args['message'];
+    $new_wp_mail = array(
+        'to'          => $args['to'],
+        'subject'     => $args['subject'],
+        'message'     => $args['message'],
+        'headers'     => $args['headers'],
+        'attachments' => $args['attachments'],
+    );
+
+    if (is_array($currentMessage)) {
+        if ($currentMessage['namespace'] === 'contact') {
+            $subject = $currentMessage['subject'];
+            $lastname = $currentMessage['lastname'];
+            $name = $currentMessage['name'];
+            $message = $currentMessage['message'];
+
+            $template = load_template_part(null, "emails/template-email-contact.php");
+            $message = str_replace(array('$subject', '$name', '$lastname', '$message'), array($subject, $name, $lastname, $message), $template);
+
+            $new_wp_mail = array(
+                'to' => $args['to'],
+                'subject' => $subject,
+                'message' => $message,
+                'headers' => array('Content-type: text/html')
+            );
+        }
+    }
+	
+	return $new_wp_mail;
+}
+
+add_action( 'wp_ajax_nopriv_get_more_comments', 'get_more_comments' );
+add_action( 'wp_ajax_get_more_comments', 'get_more_comments' );
+
+function get_more_comments() {
+    global $commentLimit, $nonceToLoadComments;
+	$postID =  $_POST['post_id'];
+    $nonce = $_POST['nonce'];
+    $page =  $_POST['page'];
+    $perPage = $commentLimit;
+
+    if (isset($nonce) && isset($postID) && isset($page)) {
+        $isCorrectNonce = wp_verify_nonce($nonce, $nonceToLoadComments);
+        if ($isCorrectNonce) {
+            $comments = get_comments(array('number' => $commentLimit, 'offset' => ($page * $perPage), 'order' => 'DESC' ));
+
+            if (count($comments) > 0) {
+                $total = get_comments_number($postID);
+
+                $results = array();
+                foreach($comments as $comment) {
+                    $currentComment = load_template_part($comment, "content-comment.php");
+                    array_push($results, $currentComment);
+                }
+
+                $haveMore = ($page + 1) < ceil($total / $perPage) ? true : false;
+
+                $response = array(
+                    'comments' => $results,
+                    'more' => $haveMore,
+                    'total' => $total
+                );
+
+                wp_send_json_success($response);
+            } else {
+                $error = WP_Error(404, 'no more comments to this post');
+                wp_send_json_error($error);
+            }
+        }
+    }
+
+    $error = WP_Error(400, 'some fields are missing');
+    wp_send_json_error($error);
+
+    die();
+}
+
+function load_template_part($comment, $templateName) {
+    ob_start();
+        include($templateName);
+        //get_template_part('content', 'comment');
+    $template = ob_get_contents();
+    ob_end_clean();
+    return $template;
+}

@@ -1,14 +1,16 @@
 <?php
 
-$content = get_option('aboutus');
-$title = get_option('about_title');
+the_post();
+
+$content = get_the_content();
+$content = wpautop($content);
 
 ?>
 
 <div class="row">
     <div class="col-xs-12">
         <div class="about-container center-block">
-            <?php echo renderTitle($title, "Transladandolo hacia sus sueños", array("about-title", "openSans", "fontLight")); ?>
+            <?php echo renderTitle(get_the_title(), "Transladandolo hacia sus sueños", array("about-title", "openSans", "fontLight")); ?>
             <div class="about-content-container">
                 <div class="container-with-tables">
                     <?php echo $content; ?>

@@ -385,4 +385,150 @@ textarea.form-control.contact-field {
       align-self: center;
       z-index: 2; }
 
+.comments-container {
+  margin: 20px 0; }
+
+.price-container {
+  float: right;
+  min-width: 100px;
+  margin: 0px 0px 10px 10px;
+  border-radius: 4px;
+  background: #f9f9f9;
+  box-shadow: 0px 2px 5px 0px silver;
+  transition: box-shadow .5s; }
+  .price-container:hover {
+    box-shadow: 0px 4px 8px 2px silver; }
+  .price-container .price-wrapper {
+    padding: 15px; }
+    .price-container .price-wrapper .info-block .icon {
+      color: #d59440;
+      margin-right: 10px; }
+    .price-container .price-wrapper .info-block .icon-label {
+      color: #000; }
+      .price-container .price-wrapper .info-block .icon-label .icon-label-space {
+        margin-right: 5px; }
+    .price-container .price-wrapper .info-block .tag-value {
+      text-decoration: underline; }
+    .price-container .price-wrapper .info-block .options-block .option {
+      display: block;
+      margin-left: 27px; }
+  .price-container .price-label, .price-container .price {
+    display: block; }
+  .price-container .price {
+    font-size: 22px;
+    color: #d59440; }
+  .price-container .btn-request-package .btn-package {
+    width: 100%;
+    background: #d59440;
+    border-color: #d59440;
+    color: #FFF; }
+
+.page-header-package {
+  border-color: #d59440; }
+
+.defaultColor {
+  color: #d59440; }
+
+.gallery-container .gallery-wrapper {
+  max-width: 100%;
+  overflow: auto;
+  white-space: nowrap;
+  padding: 4px; }
+  .gallery-container .gallery-wrapper .gallery-thumbnail {
+    margin-right: 10px;
+    box-shadow: 0px 2px 4px 1px silver;
+    display: inline-block; }
+    .gallery-container .gallery-wrapper .gallery-thumbnail:last-child {
+      margin-right: 0; }
+
+.time-container .time-departure, .time-container .time-return {
+  display: inline-block;
+  width: 50%; }
+
+.options-list {
+  margin: 0; }
+
+.comment-list {
+  position: relative;
+  padding-left: 20px; }
+  .comment-list .comment-single {
+    margin-bottom: 10px; }
+    .comment-list .comment-single:last-child {
+      margin-bottom: 0; }
+    .comment-list .comment-single .comment-icon-container {
+      color: #F00;
+      position: absolute;
+      z-index: 1;
+      margin-top: 0;
+      right: 100%;
+      font-size: 18px;
+      transform: translateX(50%); }
+    .comment-list .comment-single:before {
+      content: "";
+      display: block;
+      width: 2px;
+      border: 1px solid #d59440;
+      float: left;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0; }
+    .comment-list .comment-single .comment-single-container {
+      background: #f9f9f9;
+      border-radius: 5px;
+      padding: 10px;
+      border: 1px solid #f9f9f9;
+      position: relative; }
+      .comment-list .comment-single .comment-single-container:before {
+        content: "";
+        border-width: 10px;
+        position: absolute;
+        right: 100%;
+        border-color: inherit;
+        border-style: solid;
+        border-bottom-color: transparent;
+        border-left-color: transparent;
+        border-top-color: transparent;
+        display: block; }
+      .comment-list .comment-single .comment-single-container .user-container .meta-data {
+        display: inline-block;
+        margin-right: 15px; }
+        .comment-list .comment-single .comment-single-container .user-container .meta-data:last-child {
+          margin-right: 0; }
+      .comment-list .comment-single .comment-single-container .comment {
+        padding-top: 10px;
+        font-style: italic; }
+        .comment-list .comment-single .comment-single-container .comment::before {
+          content: "\201C";
+          font-size: 30px;
+          color: silver;
+          line-height: 1; }
+        .comment-list .comment-single .comment-single-container .comment::after {
+          content: "\201D";
+          font-size: 30px;
+          color: silver;
+          line-height: 1; }
+
+.btnOrange {
+  background: #d59440;
+  border-color: #d59440; }
+  .btnOrange:hover, .btnOrange:active, .btnOrange:focus, .btnOrange:active:focus {
+    background: #d59440;
+    opacity: .8;
+    outline: none; }
+  .btnOrange span {
+    color: #FFF; }
+  .btnOrange #progress-icon {
+    color: #FFF; }
+
+.load-btn-container {
+  margin-top: 20px; }
+
+.reverseFlip {
+  transform: scaleX(-1); }
+
+.content {
+  overflow: hidden;
+  clear: both; }
+
 /*# sourceMappingURL=style.css.map */
