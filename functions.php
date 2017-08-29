@@ -7,6 +7,8 @@ include_once(get_template_directory() . "/system/AntoursBanners.php");
 $prefix = "antours";
 $domain = $prefix;
 
+$metabox_prefix = $prefix."_mtx_";
+
 $commentLimit = get_option( 'posts_per_page' );
 $nonceToLoadComments = 'load-comment-per-post';
 $loadingText = __('Loading comment text', $domain);
@@ -23,10 +25,14 @@ $serviceActionName = "load_services_taxo_posts";
 $services = "at_servicios";
 $packages = "at_paquetes";
 $about = "at_nosotros";
-$banners = "at_banners";
+$banners = "at_container_banner";
+$home = "at_home";
 
 $serviceImageLabel = "antours_service_background";
 $packageFeaturedImage = "package_featured_image";
+$bannerPostTypeSize = "banner_post_type_size";
+$bannerPostTypeForTablets = "banner_post_type_tablets";
+$bannerPostTypeForSmartPhones = "banner_post_type_smartphones";
 
 $customImageSizes = array(
     $serviceImageLabel => array(
@@ -34,12 +40,55 @@ $customImageSizes = array(
         200,
         true
     ),
-    $packageFeaturedImage = array(
+    $packageFeaturedImage => array(
         512,
         512,
         true
+    ),
+    $bannerPostTypeSize => array(
+        1600,
+        700,
+        true,
+        1101 // this is only for min-width porpuse
+    ),
+    $bannerPostTypeForTablets => array(
+        1100,
+        500,
+        true,
+        801 // this is only for min-width porpuse
+    ),
+    $bannerPostTypeForSmartPhones => array(
+        800,
+        500,
+        true,
+        1 // this is only for min-width porpuse
     )
 );
+
+$bannerImagesSizes = array(
+    $bannerPostTypeSize,
+    $bannerPostTypeForTablets,
+    $bannerPostTypeForSmartPhones
+);
+
+function getSourcesForBannersSizes($post) {
+    global $bannerImagesSizes, $customImageSizes;
+    $sources = array("<picture>");
+    foreach($bannerImagesSizes as $nameSize) {
+        list($max_width, $_, $__, $min_width) = $customImageSizes[$nameSize];
+        $image_url = get_the_post_thumbnail_url($post, $nameSize);
+        $source = "<source media='(min-width: {$min_width}px) and (max-width: {$max_width}px)' srcset='{$image_url}'>";
+        array_push($sources, $source);
+    }
+
+    $original_img = get_the_post_thumbnail_url($post);
+    $original_img = "<img src='{$original_img}' class='img-responsive' />";
+    array_push($sources, $original_img);
+    array_push($sources, "</picture>");
+    $sources = implode("", $sources);
+
+    return $sources;
+}
 
 // add support for post thumbnail
 add_theme_support( 'post-thumbnails' ); 
@@ -170,6 +219,9 @@ function registerNewSizes() {
 }
 
 function registerPostTypes() {
+    // register post type roots
+    global $services, $packages, $about, $banners, $home, $domain;
+
     $servicePostTypeArgs = array(
         'labels' => array(
             'name' => __('Service menu label', $domain),
@@ -239,35 +291,34 @@ function registerPostTypes() {
         )
     );
 
-    $bannersPostTypeArgs = array(
+    $homePostTypeArgs = array(
         'labels' => array(
-            'name' => __('Banner menu label', $domain),
-            'singular_name' => __('Banner menu singular label', $domain),
-            'add_new' => __('Banner menu add new label', $domain),
-            'not_found' => __('Banner menu not found label', $domain),
-            'all_items' => __('Banner menu all items label', $domain),
-            'add_new_item' => __('Banner menu add new item label', $domain),
-            'featured_image' => __('Banner featured image', $domain),
-            'set_featured_image' => __('Banner set featured image', $domain),
+            'name' => __('Home menu label', $domain),
+            'singular_name' => __('Home menu singular label', $domain),
+            'add_new' => __('Home menu add new label', $domain),
+            'not_found' => __('Home menu not found label', $domain),
+            'all_items' => __('Home menu all items label', $domain),
+            'add_new_item' => __('Home menu add new item label', $domain),
+            'featured_image' => __('Home featured image', $domain),
+            'set_featured_image' => __('Home set featured image', $domain),
         ),
         'public' => true,
         'has_archive' => false,
         'show_ui' => true,
         'supports' => array(
-            'title'
+            'title',
+            'editor'
         )
     );
 
     // Create custom size
     registerNewSizes();
 
-    // register post type roots
-    global $services, $packages, $about, $banners;
-
     register_post_type($services, $servicePostTypeArgs);
     register_post_type($packages, $packagePostTypeArgs);
     register_post_type($about, $aboutPostTypeArgs);
-    register_post_type($banners, $bannersPostTypeArgs);
+    register_post_type($home, $homePostTypeArgs);
+    register_post_types_banner();
 
     // register taxonomy category
     register_taxonomy(
@@ -289,7 +340,42 @@ function registerPostTypes() {
     wp_register_style('font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 }
 
+function register_post_types_banner() {
+    global $services, $about, $home;
+    $postTypes = array(
+        'Service' => $services,
+        'About' => $about,
+        'Home' => $home
+    );
+
+    foreach($postTypes as $key => $namespace) {
+        $CommonPostTypeArgs = array(
+            'labels' => array(
+                'name' => __('Banner '. $key .' menu label', $domain),
+                'singular_name' => __('Banner '. $key .' menu singular label', $domain),
+                'add_new' => __('Banner '. $key .' menu add new label', $domain),
+                'not_found' => __('Banner '. $key .' menu not found label', $domain),
+                'all_items' => __('Banner '. $key .' menu all items label', $domain),
+                'add_new_item' => __('Banner '. $key .' menu add new item label', $domain),
+                'featured_image' => __('Banner '. $key .' featured image', $domain),
+                'set_featured_image' => __('Banner '. $key .' set featured image', $domain),
+            ),
+            'public' => true,
+            'has_archive' => false,
+            'show_ui' => true,
+            'show_in_menu' => 'edit.php?post_type='.$home,
+            'supports' => array(
+                'title',
+                'thumbnail'
+            )
+        );
+        
+        register_post_type($namespace.'_banner', $CommonPostTypeArgs);
+    }
+}
+
 add_action( 'admin_menu', 'myprefix_adjust_the_wp_menu', 999 );
+
 function myprefix_adjust_the_wp_menu() {
     global $about;
 
@@ -315,8 +401,8 @@ function myprefix_adjust_the_wp_menu() {
 add_filter('rwmb_meta_boxes', 'RegisterMetaboxesInPackage');
 
 function RegisterMetaboxesInPackage($meta_boxes) {
-    global $prefix, $domain, $services, $packages, $banners;
-    $pre = $prefix."_";
+    global $prefix, $domain, $services, $packages, $home, $about, $metabox_prefix;
+    $pre = $metabox_prefix;
 
     $meta_boxes[] = array(
         'id' => $pre . 'trip_price',
@@ -419,30 +505,50 @@ function RegisterMetaboxesInPackage($meta_boxes) {
 		),
 	);
 
-    $meta_boxes[] = array(
-        'id' => $pre . 'banners',
-		'title'  => __( 'Banner per section', $domain ),
-        'post_types' => array( $banners ),
+    /*$meta_boxes[] = array(
+        'id' => $pre . 'banners_services',
+		'title'  => __( 'Banner Service', $domain ),
+        'post_types' => array( $services.'_banner' ),
         'context'    => 'normal',
         'priority'   => 'high',
 		'fields' => array(
 			array(
-				'id'   => $pre . 'banners_home',
-				'name' => __( 'Banners home', $domain ),
-				'type' => 'image_advanced'
-			),
-            array(
-				'id'   => $pre . 'banners_services',
-				'name' => __( 'Banners services', $domain ),
-				'type' => 'image_advanced'
-			),
-            array(
-				'id'   => $pre . 'banners_about',
-				'name' => __( 'Banners about', $domain ),
+				'id'   => $pre . $services,
+				'name' => __( 'Banners Service', $domain ),
 				'type' => 'image_advanced'
 			)
 		),
 	);
+
+    $meta_boxes[] = array(
+        'id' => $pre . 'banners_about',
+		'title'  => __( 'Banner About', $domain ),
+        'post_types' => array( $about.'_banner' ),
+        'context'    => 'normal',
+        'priority'   => 'high',
+		'fields' => array(
+			array(
+				'id'   => $pre . $about,
+				'name' => __( 'Banners About', $domain ),
+				'type' => 'image_advanced'
+			)
+		),
+	);
+
+    $meta_boxes[] = array(
+        'id' => $pre . 'banners',
+		'title'  => __( 'Banner Home', $domain ),
+        'post_types' => array( $home.'_banner' ),
+        'context'    => 'normal',
+        'priority'   => 'high',
+		'fields' => array(
+			array(
+				'id'   => $pre . $home,
+				'name' => __( 'Banners home', $domain ),
+				'type' => 'image_advanced'
+			)
+		),
+	);*/
 
     return $meta_boxes;
 }
@@ -503,7 +609,7 @@ add_action( 'admin_init', 'alter_footer_admin' );
 add_filter( 'wp_handle_upload_prefilter', 'checker_image_size' );
 
 function checker_image_size( $file ) {
-    global $services, $_wp_additional_image_sizes, $serviceImageLabel, $customImageSizes, $domain;
+    global $post, $services, $_wp_additional_image_sizes, $serviceImageLabel, $customImageSizes, $domain;
 
     if (get_post_type($_REQUEST['post_id']) === $services) {
         $image_sizes   = getimagesize( $file['tmp_name'] );
@@ -697,3 +803,32 @@ function load_template_part($comment, $templateName) {
     ob_end_clean();
     return $template;
 }
+
+/* ADD MENU PAGE CAR BOOKING */
+add_action( 'admin_menu', 'add_car_booking_menu' );
+
+function add_car_booking_menu(){
+    global $domain;
+    $hook = add_menu_page( __('Car Booking List', $domain), __('Car Booking Menu Link', $domain), 'manage_options', 'car-booking', 'Car_Booking_List_View', 'dashicons-tickets-alt', 30 );
+    add_action( "load-$hook", 'add_options' );
+}
+
+function add_options() {
+    global $myListTable;
+
+    $myListTable = new Antours_List_Table();
+}
+
+function Car_Booking_List_View(){
+        global $myListTable;
+        echo '</pre><div class="wrap"><h2>My List Table Test</h2>'; 
+        $myListTable->prepare_items(); 
+    ?>
+        <form method="post">
+        <input type="hidden" name="page" value="ttest_list_table">
+    <?php
+        $myListTable->search_box( 'search', 'search_id' );
+        $myListTable->display(); 
+    echo '</form></div>'; 
+}
+/* ADD MENU PAGE CAR BOOKING */

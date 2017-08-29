@@ -62,34 +62,23 @@ class AntoursBanners {
 
     private function renderBanners($captions) {
         $index = 0;
-        $banners = "<div class='carousel-inner' role='listbox'>";
-        $itemCss = implode(" ", $this->itemCss);
-        $captionCss = implode(" ", $this->captionCss);
-        $imgCss = implode(" ", $this->imgCss);
+        $banners = array("<div class='carousel-inner' role='listbox'>");
         
-        foreach($this->resources as $id => $resource) {
-            $title = $resource['title'];
-            $caption = $resource['caption'];
-            $alt = $resource['alt'];
-            $desc = $resource['description'];
+        foreach($this->resources as $picture) {
             $active = $index === 0 ? 'active' : '';
-            $url = $resource['full_url'];
 
-            $item = "<div class='item $active $itemCss'>";
-            $item .= "<img src='$url' title='$title' alt='$alt' class='$imgCss' />";
-
-            if ($captions) {
-                $item .= "<div class='carousel-caption $captionCss'>$desc</div>";
-            }
-
+            $item = "<div class='item $active'>";
+            $item .= $picture;
             $item .= "</div>";
 
-            $banners .= $item;
+            array_push($banners, $item);
 
             $index++;
         }
 
-        $banners .= "</div>";
+        array_push($banners, "</div>");
+
+        $banners = implode("", $banners);
 
         return $banners;
     }
