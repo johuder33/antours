@@ -13,8 +13,6 @@ function settings_on_activate_theme() {
     );
 }
 
-
-
 add_action('admin_menu', 'settings_on_activate_theme');
 add_action('admin_init', 'page_init');
 

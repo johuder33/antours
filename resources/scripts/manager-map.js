@@ -45,7 +45,7 @@
 
     var _attemps = 0;
     var _timer = setInterval(function(){
-        var id = '#antours_trip_price_package';
+        var id = '#antours_mtx_trip_price_package';
         var field = $(id);
 
         if (field.length > 0 || (_attemps > 10)) {

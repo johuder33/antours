@@ -1,17 +1,17 @@
 <?php
+
 get_header();
 
-global $packages, $wp_query, $wp_rewrite;
+global $packages;
 $category = get_the_terms($post->ID, 'antours-category');
-
-
 
 ?>
 
-<div class="row">
+<div class="container-fluid">
     <?php get_template_part("content", "menu"); ?>
 
-    <div class="col-xs-12">
+    <div class="container">
+        <div class="row">
         <?php //get_template_part("content", "banners"); ?>
         <?php //get_template_part("content", "reservation"); ?>
         
@@ -31,28 +31,25 @@ $category = get_the_terms($post->ID, 'antours-category');
                         )),
                         'post_type' =>  $packages,
                         'post_status' => 'publish',
-                        'paged' => $paged
+                        'paged' => $paged,
                         );
 
-                $posts = query_posts($args);
-                $countPosts = $wp_query->found_posts;
+                $query = new WP_Query($args);
 
-                if (have_posts()) {
-                    get_template_part('content', 'packages-open');
-                    while(have_posts()) {
-                        the_post();
+                if ($query->have_posts()) {
+                    while($query->have_posts()) {
+                        $query->the_post();
                         get_template_part('content', 'template-package');
                     }
 
-                    get_template_part('content', 'packages-close');
-
                     // show pagination
-                    echo paginate_links(array(
-                        'base' => str_replace('%_%', 1 == $paged ? '' : "?page=%#%", "?page=%#%"),
-                        'format' => '?page=%#%',
-                        'total' => $wp_query->max_num_pages,
-                        'current' => intval($paged)
-                    ));
+                    ?>
+                    <div class="col-12">
+                        <?php
+                            show_wp_paginate($paged, $query->max_num_pages);
+                        ?>
+                    </div>
+                    <?php
                 } else {
                     get_template_part("content", "not_found");
                 }
@@ -61,6 +58,7 @@ $category = get_the_terms($post->ID, 'antours-category');
             }
         ?>
 
+        </div>
     </div>
 </div>
 

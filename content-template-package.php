@@ -13,22 +13,22 @@ $image_url = has_post_thumbnail() ? get_the_post_thumbnail_url($post->ID, $packa
 
 ?>
 
-<div class="package-detail col-xs-4">
+<div class="package-detail col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-4">
     <div class="wrapper-package">
-        <figure>
+        <picture class="picture d-block text-center">
             <a href="<?php echo $permalink; ?>">
-                <img src="<?php echo $image_url; ?>" class="img-responsive" />
+                <img src="<?php echo $image_url; ?>" class="img-fluid" />
             </a>
-        </figure>
+        </picture>
         <div class="detail-container">
-            <div class="detail-note">
-                <div class="title">
+            <div class="detail-note row no-gutters align-items-center">
+                <div class="title col">
                     <span>
                         <?php echo $post_title; ?>
                     </span>
                 </div>
 
-                <div class="action">
+                <div class="action col-auto">
                     <button data-id="<?php echo $postID; ?>" type="button" class="btn btn-default text-uppercase btn-reserve">Reservar</button>
                 </div>
             </div>

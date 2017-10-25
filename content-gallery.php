@@ -2,7 +2,7 @@
 
 $gallery = rwmb_meta('antours_trip_gallery_group');
 
-if (count($gallery) <= 0) {
+if (count($gallery) <= 0 || empty($gallery)) {
     return;
 }
 

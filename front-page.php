@@ -1,16 +1,27 @@
 <?php get_header(); ?>
 
-    <div class="row">
-        <?php get_template_part("content", "menu"); ?>
+    <?php get_template_part("content", "menu"); ?>
 
-        <div class="col-xs-12">
-            <?php get_template_part("content", "banners"); ?>
-            <?php get_template_part("content", "reservation"); ?>
-            <div class="row" style="margin: 30px 0;">
-                <?php echo renderTitle("Paquetes destacados", "Conoce los destinos preferidos en Chile", array("normal-title", "openSans", "fontLight")); ?>
-            </div>
-            <?php get_template_part("content", "packages"); ?>
+    <div class="container-fluid">
+        <?php get_template_part("content", "banners"); ?>
+        <?php get_template_part("content", "reservation"); ?>
+        <?php get_template_part("content", "home"); ?>
+        <div class="container">
+            <?php 
+                $title = t("antours", "Package Title", "Package Title");
+                $content = t("antours", "Package Content", "Package Content");
+                if ($title && $content) {
+                    ?>
+                    <div class="row">
+                    <?php
+                        renderTitle($title, $content, array("normal-title", "openSans", "fontLight"));
+                    ?>
+                    </div>
+                    <?php
+                }
+            ?>
         </div>
+        <?php get_template_part("content", "packages"); ?>
     </div>
 
 <?php get_footer(); ?>

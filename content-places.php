@@ -1,7 +1,7 @@
 <?php
 
-global $domain;
-$departure_places = rwmb_meta('antours_departure_place');
+global $domain, $metabox_prefix;
+$departure_places = rwmb_meta($metabox_prefix.'departure_place');
 
 if (count($departure_places) <= 0) {
     return;

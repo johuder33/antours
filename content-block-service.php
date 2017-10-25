@@ -4,34 +4,19 @@ $attachment = get_the_post_thumbnail_url($post, $serviceImageLabel);
 $content = get_the_content();
 $thumbnailID = get_post_thumbnail_id();
 
-$sizes = array();
-foreach(get_intermediate_image_sizes() as $size) {
-    $size = wp_get_attachment_image_src($thumbnailID, $size);
-    array_push($sizes, $size);
-}
-
-//var_dump($sizes);
-
 ?>
 
-<div class="row overlay-border text-center">
-    <div class="flex-overlay">
+<div class="overlay-border text-center">
+    <div class="d-flex flex-column overlay-flex">
         <?php
             if ($attachment) {
                 ?>
-                    <picture>
-                        <source media="(max-width: 385px)" srcset="<?php echo $sizes[4][0]; ?>">
-
-                        <source media="(max-width: 420px)" srcset="<?php echo $sizes[0][0]; ?>">
-
-                        <img src="<?php echo $attachment; ?>" class="center-block img-responsive img-service" />
-                    </picture>
+                    <img src="<?php echo $attachment; ?>" class="center-block img-fluid img-service" />
                 <?php
             }
         ?>
-        <a class="flex-overlay-container"  href="<?php the_permalink();?>">
-            <div class="orange-overlay"></div>
-            <h1 class="overlay-title openSans">
+        <a class="flex-overlay-container d-flex flex-column justify-content-center" href="<?php the_permalink();?>">
+            <h1 class="overlay-title">
                 <?php
                     echo $post->post_title;
                 ?>
@@ -39,7 +24,7 @@ foreach(get_intermediate_image_sizes() as $size) {
         </a>
     </div>
 
-    <div class="content-service">
+    <div class="content-service text-justify">
         <?php echo $content; ?>
     </div>
 </div>

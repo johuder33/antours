@@ -17,7 +17,7 @@ class AntoursBanners {
     }
 
     public function render($indicators = false, $captions = false, $controls = true) {
-        $banner = "<div id='$this->bannerID' class='carousel slide' data-ride='carousel'>";
+        $banner = "<div id='$this->bannerID' class='carousel slide' data-ride='false'>";
 
         if (count($this->resources) < 2) {
             $controls = false;
@@ -67,7 +67,7 @@ class AntoursBanners {
         foreach($this->resources as $picture) {
             $active = $index === 0 ? 'active' : '';
 
-            $item = "<div class='item $active'>";
+            $item = "<div class='carousel-item $active'>";
             $item .= $picture;
             $item .= "</div>";
 
@@ -85,12 +85,12 @@ class AntoursBanners {
 
     private function renderControls() {
         $controls = '
-            <a class="left carousel-control" href="#'. $this->bannerID .'" role="button" data-slide="prev">
-                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            <a class="carousel-control-prev" href="#' . $this->bannerID . '" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="sr-only">Previous</span>
             </a>
-            <a class="right carousel-control" href="#'. $this->bannerID .'" role="button" data-slide="next">
-                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+            <a class="carousel-control-next" href="#' . $this->bannerID . '" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="sr-only">Next</span>
             </a>
         ';

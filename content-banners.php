@@ -49,6 +49,7 @@
     }
 
     $bannerConstructor = new AntoursBanners($banners, null);
+    
     wp_reset_query();
 ?>
 

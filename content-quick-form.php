@@ -5,33 +5,38 @@ $postID = "package-".$post->ID;
 // post title
 $post_title = $post->post_title;
 
+$fields = renderQuickFields("data-id", $postID);
+
 ?>
 
 <div class="quick-form" id="<?php echo $postID; ?>">
-    <div class="quick-container">
+    <div class="quick-container d-flex flex-column">
         <div class="quick-form-container">
+            <div class="layout-loader" id="loader-<?php echo $post->ID; ?>">
+                <div class="wrapper-loader">
+                    <i class="fa fa-spinner fa-spin fa-5x"></i>
+                </div>
+            </div>
             <form class="form">
-                <input class="form-control quick-field" placeholder="Nombre y Apellido" />
-                <input class="form-control quick-field" placeholder="RUT" />
-                <input class="form-control quick-field" placeholder="Teléfonos" />
-                <input class="form-control quick-field" placeholder="Cantidad de pasajeros" />
-                <input class="form-control quick-field" placeholder="Dirección del Hotel (optional)" />
-                <input class="form-control quick-field" placeholder="Tipo de Servicio" />
+                <?php
+                    echo $fields;
+                ?>
             </form>
         </div>
 
         <div class="quick-control">
-            <div class="detail-note">
-                <div class="title btn-close-quick-form" data-id="<?php echo $postID; ?>">
-                    <span class="glyphicon glyphicon-remove">
-                    </span>
+            <div class="detail-note row no-gutters align-items-center">
+                <div class="title btn-close-quick-form col" data-id="<?php echo $postID; ?>">
+                    <button type="button" class="close icon-close" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                     <span>
                         <?php echo $post_title; ?>
                     </span>
                 </div>
 
-                <div class="action">
-                    <button type="button" class="btn btn-default text-uppercase btn-makeReserve">Enviar</button>
+                <div class="action col-auto">
+                    <button type="button" data-id="<?php echo $postID; ?>" class="btn btn-default text-uppercase btn-makeReserve">Enviar</button>
                 </div>
             </div>
         </div>

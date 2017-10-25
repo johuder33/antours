@@ -1,4 +1,6 @@
 <?php
+    
+    global $metabox_prefix;
 
     $args = array(
         'type'         => 'map',
@@ -9,7 +11,7 @@
         )
     );
 
-    $map = rwmb_meta('antours_trip_map', $args);
+    $map = rwmb_meta($metabox_prefix.'trip_map', $args);
 
 ?>
 

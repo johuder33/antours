@@ -1,8 +1,8 @@
 <?php
-
-$price = rwmb_meta('antours_trip_price_package');
-$time_to_departure = rwmb_meta('antours_time_departure');
-$time_to_return = rwmb_meta('antours_time_return');
+global $metabox_prefix;
+$price = rwmb_meta($metabox_prefix.'trip_price_package');
+$time_to_departure = rwmb_meta($metabox_prefix.'time_departure');
+$time_to_return = rwmb_meta($metabox_prefix.'time_return');
 
 ?>
 
